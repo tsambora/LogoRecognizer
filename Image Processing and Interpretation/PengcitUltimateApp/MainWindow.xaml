@@ -1,0 +1,47 @@
+﻿<Window x:Class="PengcitUltimateApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Interpretasi dan Pengolahan Citra" Height="698" Width="1268" WindowStartupLocation="CenterScreen" Background="White" Icon="/PengcitUltimateApp;component/Images/lena.bmp">
+    <Grid Background="#A69295CA">
+        <Button Content="Load Image" Height="23" HorizontalAlignment="Left" Margin="12,12,0,0" Name="button1" VerticalAlignment="Top" Width="91" Click="button1_Click" />
+        <Image Height="390" HorizontalAlignment="Left" Margin="12,41,0,0" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="555" Drop="image1_Drop" MaxHeight="Infinity" />
+        <Image Height="390" HorizontalAlignment="Left" Margin="664,41,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="555" />
+        <Label Content="BEFORE" Height="56" HorizontalAlignment="Left" Margin="136,437,0,0" Name="label1" VerticalAlignment="Top" Width="252" FontSize="32" FontFamily="Segoe UI" />
+        <Label Content="AFTER" FontSize="32" Height="56" HorizontalAlignment="Center" Margin="846,437,0,0" Name="label2" VerticalAlignment="Top" Width="252" />
+        <Rectangle Height="390" HorizontalAlignment="Left" Margin="0,41,0,0" Name="rectangle1" Stroke="Black" VerticalAlignment="Top" Width="1258" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="805,12,0,0" Name="comboBox1" VerticalAlignment="Top" Width="120" SelectionChanged="comboBox1_SelectionChanged" SelectedValuePath="Content">
+            <ComboBoxItem Content="Binary Image" IsSelected="True" />
+            <ComboBoxItem Content="Contrast" />
+            <ComboBoxItem Content="Sharpen" />
+            <ComboBoxItem Content="Grayscale" />
+            <ComboBoxItem Content="2 Differences" />
+            <ComboBoxItem Content="4 Differences" />
+            <ComboBoxItem Content="Matrix 1 Degree" />
+            <ComboBoxItem Content="Matrix 2 Degree" />
+            <ComboBoxItem Content="Object Detection" />
+            <ComboBoxItem Content="Zhang-Suen Thinning" />
+            <ComboBoxItem Content="Face Count" />
+            <ComboBoxItem Content="Morph" />
+            <ComboBoxItem Content="Compress" />
+        </ComboBox>
+        <Label Content="Select Mode :" Height="28" HorizontalAlignment="Left" Margin="667,9,0,0" Name="label3" VerticalAlignment="Top" Width="122" />
+        <Button Content="Run" Height="23" HorizontalAlignment="Left" Margin="579,60,0,0" Name="button2" VerticalAlignment="Top" Width="75" Click="button2_Click" />
+        <Label Content="by Tino Eka Krisna Sambora" Height="28" HorizontalAlignment="Left" Margin="136,9,0,0" Name="label4" VerticalAlignment="Top" Width="279" />
+        <TextBox ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="125" HorizontalAlignment="Left" Margin="14,518,0,0" Name="textBox1" VerticalAlignment="Top" Width="1205" />
+        <Label Content="Log:" Height="28" HorizontalAlignment="Left" Margin="31,488,0,0" Name="label5" VerticalAlignment="Top" Width="279" />
+        <TextBlock Height="20" HorizontalAlignment="Left" Margin="579,89,0,0" Name="textBlock1" Text="LOADING...." VerticalAlignment="Top" Width="74" Visibility="Hidden" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="954,11,0,0" Name="comboBox2" VerticalAlignment="Top" Width="120" Visibility="Hidden" SelectedValuePath="Content">
+            <ComboBoxItem Content="Prewitt" IsSelected="True" />
+            <ComboBoxItem Content="Sobel" />
+            <ComboBoxItem Content="Frei Chen" />
+            <ComboBoxItem Content="Robert" />
+            <ComboBoxItem Content="Kayalli" />
+        </ComboBox>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="954,11,0,0" Name="comboBox3" SelectedValuePath="Content" VerticalAlignment="Top" Visibility="Hidden" Width="120">
+            <ComboBoxItem Content="Prewitt" IsSelected="True" />
+            <ComboBoxItem Content="Robinson" />
+            <ComboBoxItem Content="Kirsch" />
+        </ComboBox>
+        <Button Content="Reset" Height="23" HorizontalAlignment="Left" Margin="579,387,0,0" Name="button3" VerticalAlignment="Top" Width="75" Click="button3_Click" />
+    </Grid>
+</Window>
