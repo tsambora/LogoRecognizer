@@ -21,8 +21,8 @@ namespace LogoDetectionFANET45
 {
     public partial class Form1 : Form
     {
-        Image<Gray, Byte> model = new Image<Gray, Byte>("C:/Users/Onit/Documents/GitHub/logo-detector/test images/1.jpg");
-        Image<Gray, Byte> observed = new Image<Gray, Byte>("C:/Users/Onit/Documents/GitHub/logo-detector/test images/8.jpg");
+        Image<Gray, Byte> model;
+        Image<Gray, Byte> observed;
         int algorithm;
 
         public Form1()
@@ -364,16 +364,25 @@ namespace LogoDetectionFANET45
 
         private void button3_Click(object sender, EventArgs e)
         {
-            switch (algorithm) { 
-                case 1:
-                    imageBox1.Image = FAST(model, observed);
-                    break;
-                case 2:
-                    imageBox1.Image = SURF(model, observed);
-                    break;
-                case 3:
-                    imageBox1.Image = SIFT(model, observed);
-                    break;
+            if (model == null || observed == null)
+            {
+                richTextBox1.Clear();
+                richTextBox1.AppendText("pilih gambar terlebih dahulu");
+            }
+            else
+            {
+                switch (algorithm)
+                {
+                    case 1:
+                        imageBox1.Image = FAST(model, observed);
+                        break;
+                    case 2:
+                        imageBox1.Image = SURF(model, observed);
+                        break;
+                    case 3:
+                        imageBox1.Image = SIFT(model, observed);
+                        break;
+                }
             }
         }
     }
