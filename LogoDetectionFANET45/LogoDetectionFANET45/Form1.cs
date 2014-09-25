@@ -100,13 +100,14 @@ namespace LogoDetectionFANET45
                  new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.Red), 5);
+                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             richTextBox1.Clear();
-            richTextBox1.AppendText("FAST time = " + matchTime);
+            richTextBox1.AppendText("waktu pendeteksian FAST: " + matchTime + "ms\n");
+            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
 
             return result;
         }
@@ -172,14 +173,14 @@ namespace LogoDetectionFANET45
                new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.Red), 5);
+                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             richTextBox1.Clear();
-            richTextBox1.AppendText("SURF time = " + matchTime);
-
+            richTextBox1.AppendText("waktu pendeteksian SURF: " + matchTime + "ms\n");
+            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
             return result;
         }
 
@@ -244,14 +245,14 @@ namespace LogoDetectionFANET45
                    new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.Red), 5);
+                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             richTextBox1.Clear();
-            richTextBox1.AppendText("SIFT time = " + matchTime);
-
+            richTextBox1.AppendText("waktu pendeteksian SIFT: " + matchTime + "ms\n");
+            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
             return result;
         }
 
