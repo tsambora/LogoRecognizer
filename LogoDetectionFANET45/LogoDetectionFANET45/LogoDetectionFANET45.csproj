@@ -59,8 +59,17 @@
     <Reference Include="Emgu.Util">
       <HintPath>..\..\..\..\..\..\..\Emgu\emgucv-windows-x86-gpu 2.4.2.1777\bin\Emgu.Util.dll</HintPath>
     </Reference>
+    <Reference Include="InstaSharp">
+      <HintPath>..\..\..\..\..\Desktop\desktop\InstaSharp-0.9.0\InstaSharp-0.9.0\bin\Debug\InstaSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\Desktop\desktop\InstaSharp-0.9.0\InstaSharp-0.9.0\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Json">
+      <HintPath>..\packages\System.Json.4.0.20126.16343\lib\net40\System.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -91,6 +100,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
