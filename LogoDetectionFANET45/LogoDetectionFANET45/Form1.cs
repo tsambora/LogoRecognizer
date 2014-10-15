@@ -17,6 +17,8 @@ using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Emgu.CV.GPU;
+using System.Net;
+using System.IO;
 
 namespace LogoDetectionFANET45
 {
@@ -25,22 +27,35 @@ namespace LogoDetectionFANET45
         Image<Gray, Byte> model;
         Image<Gray, Byte> observed;
         int algorithm;
-        static InstaSharp.InstagramConfig config = new InstaSharp.InstagramConfig("https://api.instagram.com/v1",
-                                            "https://api.instagram.com/oauth", "10ddb3d97c6744b29e87fe0688067a95",
-                                            "03391bad215a4f23b71cdf4e99e27b91", "http://localhost:8080");
+        //Fetch image URLs based on tags
+        static InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
+        static InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent("starbucks", "0", "1");
+        static String resultTags = responTags.Json;
+        static JsonValue JsonTags = JsonValue.Parse(resultTags);
+        String[] ImageURLTags = new String[JsonTags["data"].Count];
 
-        static InstaSharp.Endpoints.Locations.Unauthenticated IG = new InstaSharp.Endpoints.Locations.Unauthenticated(config);
+        //Fetch image URLs based on user
+        static InstaSharp.Endpoints.Users.Unauthenticated IGUsers = new InstaSharp.Endpoints.Users.Unauthenticated(Credentials.config);
+        static InstaSharp.Model.Responses.UserResponse responUser = IGUsers.Get(48184660);
+        static JsonValue JsonUser = JsonObject.Parse(UserJson);
+        String[] ImageURLUser = new String[JsonUser["data"].Count];
 
-        String result = IG.RecentJson("40174");
-
-        //{1,2,3,4,5,6,"images":{"low_resolution":{"url":"http:\/\/scontent-b.cdninstagram.com\/hphotos-xaf1\/t51.2885-15\/10661047_567786680013411_1236800010_a.jpg","width":306,"height":306},"thumbnail":{"url":"http:\/\/scontent-b.cdninstagram.com\/hphotos-xaf1\/t51.2885-15\/10661047_567786680013411_1236800010_s.jpg","width":150,"height":150},"standard_resolution":{"url":"http:\/\/scontent-b.cdninstagram.com\/hphotos-xaf1\/t51.2885-15\/10661047_567786680013411_1236800010_n.jpg","width":640,"height":640}},"users_in_photo":[],"caption":{"created_time":"1409629703","text":"? ??? ?? ???? \u000a??, ??, ??, ????, ?? ??\u000a20? ??? ?? ????\u000a?? ? ????;;\u000a?? ???? ??? ?? ?? ??? ?? ? ????? ??? ?? ??? ????^^*\u000a#????#?????#????\u000a#??????#??????","from":{"username":"carrotjjung","profile_picture":"http:\/\/photos-h.ak.instagram.com\/hphotos-ak-xpf1\/10507859_338023903013191_1834813196_a.jpg","id":"575533907","full_name":"???, ???, ??? ??~"},"id":"800354416329560598"},"type":"image","id":"800354415817855219_575533907","user":{"username":"carrotjjung","website":"","profile_picture":"http:\/\/photos-h.ak.instagram.com\/hphotos-ak-xpf1\/10507859_338023903013191_1834813196_a.jpg","full_name":"???, ???, ??? ??~","bio":"","id":"575533907"}}
-
-
-        JsonValue result2 = JsonValue.Parse(IG.RecentJson("40174"));
+        //requests
+        //1. authenticated user data
+        static HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.instagram.com/v1/users/48184660/media/recent/?access_token=" + Credentials.access_token);
+        static HttpWebResponse httpWebReponse = (HttpWebResponse)request.GetResponse();
+        static System.IO.Stream dataStream = httpWebReponse.GetResponseStream();
+        static StreamReader reader = new StreamReader(dataStream);
+        static string UserJson = reader.ReadToEnd();
 
         public Form1()
         {
             InitializeComponent();
+            Console.WriteLine(UserJson);
+            for (int i = 0; i < JsonUser["data"].Count; i++)
+            {
+                ImageURLUser[i] = (string)JsonUser["data"][i]["images"]["standard_resolution"]["url"];
+            }
         }
 
         private void imageBox1_Click(object sender, EventArgs e)
@@ -161,7 +176,7 @@ namespace LogoDetectionFANET45
                 using (GpuMat<int> gpuMatchIndices = new GpuMat<int>(gpuObservedDescriptors.Size.Height, k, 1, true))
                 using (GpuMat<float> gpuMatchDist = new GpuMat<float>(gpuObservedDescriptors.Size.Height, k, 1, true))
                 using (GpuMat<Byte> gpuMask = new GpuMat<byte>(gpuMatchIndices.Size.Height, 1, 1))
-                using (Stream stream = new Stream())
+                using (Emgu.CV.GPU.Stream stream = new Emgu.CV.GPU.Stream())
                 {
                     matcher.KnnMatchSingle(gpuObservedDescriptors, gpuModelDescriptors, gpuMatchIndices, gpuMatchDist, k, null, stream);
                     indices = new Matrix<int>(gpuMatchIndices.Size);
@@ -344,11 +359,11 @@ namespace LogoDetectionFANET45
                     RadioButton radio = control as RadioButton;
                     if (radio.Checked)
                     {
+                        
                         richTextBox1.Clear();
-                        richTextBox1.AppendText(radio.Text + "\n");
-                        for (int i = 0; i < result2["data"].Count; i++) {
-                            string output = (string)result2["data"][i]["images"]["standard_resolution"]["url"];
-                            Console.WriteLine(output.Replace(@"\", String.Empty) + "\n");
+                        for (int i = 0; i < ImageURLUser.Length; i++) {
+                            string output = (string)ImageURLUser[i];
+                            richTextBox1.AppendText(output.Replace(@"\", String.Empty) + "\n");
                         }
                         algorithm = 1;
                     }
@@ -431,8 +446,12 @@ namespace LogoDetectionFANET45
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                textBox2.Text = openFileDialog1.FileName;
-                observed = new Image<Gray, Byte>(openFileDialog1.FileName);
+                HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(ImageURLUser[4]);
+                HttpWebResponse httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                System.IO.Stream stream = httpWebReponse.GetResponseStream();
+                Bitmap testing = (Bitmap)Image.FromStream(stream);
+                textBox2.Text = ImageURLUser[4];
+                observed = new Image<Gray, Byte>(testing);
             }
         }
 
