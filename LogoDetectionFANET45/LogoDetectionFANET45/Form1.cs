@@ -27,18 +27,6 @@ namespace LogoDetectionFANET45
         Image<Gray, Byte> model;
         Image<Gray, Byte> observed;
         int algorithm;
-        //Fetch image URLs based on tags
-        static InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
-        static InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent("starbucks", "0", "1");
-        static String resultTags = responTags.Json;
-        static JsonValue JsonTags = JsonValue.Parse(resultTags);
-        String[] ImageURLTags = new String[JsonTags["data"].Count];
-
-        //Fetch image URLs based on user
-        static InstaSharp.Endpoints.Users.Unauthenticated IGUsers = new InstaSharp.Endpoints.Users.Unauthenticated(Credentials.config);
-        static InstaSharp.Model.Responses.UserResponse responUser = IGUsers.Get(48184660);
-        static JsonValue JsonUser = JsonObject.Parse(UserJson);
-        String[] ImageURLUser = new String[JsonUser["data"].Count];
 
         //requests
         //1. authenticated user data
@@ -47,6 +35,19 @@ namespace LogoDetectionFANET45
         static System.IO.Stream dataStream = httpWebReponse.GetResponseStream();
         static StreamReader reader = new StreamReader(dataStream);
         static string UserJson = reader.ReadToEnd();
+
+        //Fetch image URLs based on user
+        static InstaSharp.Endpoints.Users.Unauthenticated IGUsers = new InstaSharp.Endpoints.Users.Unauthenticated(Credentials.config);
+        static InstaSharp.Model.Responses.UserResponse responUser = IGUsers.Get(48184660);
+        static JsonValue JsonUser = JsonObject.Parse(UserJson);
+        String[] ImageURLUser = new String[JsonUser["data"].Count];
+
+        //Fetch image URLs based on tags
+        static InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
+        static InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent("starbucks", "0", "1");
+        static String resultTags = responTags.Json;
+        static JsonValue JsonTags = JsonValue.Parse(resultTags);
+        String[] ImageURLTags = new String[JsonTags["data"].Count];
 
         public Form1()
         {
