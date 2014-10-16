@@ -52,10 +52,16 @@ namespace LogoDetectionFANET45
         public Form1()
         {
             InitializeComponent();
-            Console.WriteLine(UserJson);
             for (int i = 0; i < JsonUser["data"].Count; i++)
             {
                 ImageURLUser[i] = (string)JsonUser["data"][i]["images"]["standard_resolution"]["url"];
+            }
+            richTextBox2.Clear();
+            richTextBox2.AppendText("URL gambar-gambar dari Instagram API\n");
+            for (int i = 0; i < ImageURLUser.Length; i++)
+            {
+                string output = (string)ImageURLUser[i];
+                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
             }
         }
 
@@ -360,12 +366,8 @@ namespace LogoDetectionFANET45
                     RadioButton radio = control as RadioButton;
                     if (radio.Checked)
                     {
-                        
                         richTextBox1.Clear();
-                        for (int i = 0; i < ImageURLUser.Length; i++) {
-                            string output = (string)ImageURLUser[i];
-                            richTextBox1.AppendText(output.Replace(@"\", String.Empty) + "\n");
-                        }
+                        richTextBox1.AppendText(radio.Text);
                         algorithm = 1;
                     }
                 }
@@ -429,35 +431,14 @@ namespace LogoDetectionFANET45
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.InitialDirectory = @"C:\";
-            openFileDialog1.Title = "pilih gambar target";
-
-            openFileDialog1.CheckFileExists = true;
-            openFileDialog1.CheckPathExists = true;
-
-            openFileDialog1.DefaultExt = "jpg";
-
-            openFileDialog1.RestoreDirectory = false;
-            openFileDialog1.ReadOnlyChecked = true;
-            openFileDialog1.ShowReadOnly = true;
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(ImageURLUser[4]);
-                HttpWebResponse httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                System.IO.Stream stream = httpWebReponse.GetResponseStream();
-                Bitmap testing = (Bitmap)Image.FromStream(stream);
-                textBox2.Text = ImageURLUser[4];
-                observed = new Image<Gray, Byte>(testing);
-            }
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
+            HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(textBox2.Text);
+            HttpWebResponse httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            System.IO.Stream stream = httpWebReponse.GetResponseStream();
+            Bitmap testing = (Bitmap)Image.FromStream(stream);
+            observed = new Image<Gray, Byte>(testing);
+
             if (model == null || observed == null)
             {
                 richTextBox1.Clear();
@@ -478,6 +459,16 @@ namespace LogoDetectionFANET45
                         break;
                 }
             }
+        }
+        
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        
+        private void richTextBox2_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
