@@ -28,41 +28,14 @@ namespace LogoDetectionFANET45
         Image<Gray, Byte> observed;
         int algorithm;
 
-        //requests
-        //1. authenticated user data
-        static HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.instagram.com/v1/users/48184660/media/recent/?access_token=" + Credentials.access_token);
-        static HttpWebResponse httpWebReponse = (HttpWebResponse)request.GetResponse();
-        static System.IO.Stream dataStream = httpWebReponse.GetResponseStream();
-        static StreamReader reader = new StreamReader(dataStream);
-        static string UserJson = reader.ReadToEnd();
-
-        //Fetch image URLs based on user
-        static InstaSharp.Endpoints.Users.Unauthenticated IGUsers = new InstaSharp.Endpoints.Users.Unauthenticated(Credentials.config);
-        static InstaSharp.Model.Responses.UserResponse responUser = IGUsers.Get(48184660);
-        static JsonValue JsonUser = JsonObject.Parse(UserJson);
-        String[] ImageURLUser = new String[JsonUser["data"].Count];
-
-        //Fetch image URLs based on tags
-        static InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
-        static InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent("starbucks", "0", "1");
-        static String resultTags = responTags.Json;
-        static JsonValue JsonTags = JsonValue.Parse(resultTags);
-        String[] ImageURLTags = new String[JsonTags["data"].Count];
-
         public Form1()
         {
             InitializeComponent();
-            for (int i = 0; i < JsonUser["data"].Count; i++)
-            {
-                ImageURLUser[i] = (string)JsonUser["data"][i]["images"]["standard_resolution"]["url"];
-            }
-            richTextBox2.Clear();
-            richTextBox2.AppendText("URL gambar-gambar dari Instagram API\n");
-            for (int i = 0; i < ImageURLUser.Length; i++)
-            {
-                string output = (string)ImageURLUser[i];
-                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
-            }
+
+            //populate combo box and set it's default value
+            comboBox1.Items.Add("search by user"); comboBox1.Items.Add("search by tag"); comboBox1.Items.Add("search by location");
+            comboBox1.SelectedItem = "search by user";
+            label4.Text = "user ID";
         }
 
         private void imageBox1_Click(object sender, EventArgs e)
@@ -347,6 +320,76 @@ namespace LogoDetectionFANET45
             return result;
         }
 
+        public void FetchByUser(string userid) {
+            richTextBox2.Clear();
+            richTextBox2.AppendText("Fetching Instagram API data...");
+
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.instagram.com/v1/users/"+ userid +"/media/recent/?access_token=" + Credentials.access_token);
+            HttpWebResponse httpWebReponse = (HttpWebResponse)request.GetResponse();
+            System.IO.Stream dataStream = httpWebReponse.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+            string UserJson = reader.ReadToEnd();
+            dataStream.Close();
+            reader.Close();
+
+            JsonValue JsonUser = JsonObject.Parse(UserJson);
+            String[] ImageURLUser = new String[JsonUser["data"].Count];
+
+            for (int i = 0; i < JsonUser["data"].Count; i++)
+            {
+                ImageURLUser[i] = (string)JsonUser["data"][i]["images"]["standard_resolution"]["url"];
+            }
+            richTextBox2.Clear();
+            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/users/" + userid +"/media/recent/?access_token=**** \n");
+            richTextBox2.AppendText("Respon Instagram API: \n");
+            for (int i = 0; i < ImageURLUser.Length; i++)
+            {
+                string output = (string)ImageURLUser[i];
+                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
+            }
+        }
+
+        public void FetchByTag(string tag){
+            InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
+            InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent(tag, "0", "1");
+            String resultTags = responTags.Json;
+            JsonValue JsonTags = JsonValue.Parse(resultTags);
+            String[] ImageURLTags = new String[JsonTags["data"].Count];
+
+            for (int i = 0; i < JsonTags["data"].Count; i++)
+            {
+                ImageURLTags[i] = (string)JsonTags["data"][i]["images"]["standard_resolution"]["url"];
+            }
+            richTextBox2.Clear();
+            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/" + tag + "/snow/media/recent \n");
+            richTextBox2.AppendText("Respon Instagram API: \n");
+            for (int i = 0; i < ImageURLTags.Length; i++)
+            {
+                string output = (string)ImageURLTags[i];
+                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
+            }
+        }
+
+        public void FetchByLocation(string locationid) { 
+            InstaSharp.Endpoints.Locations.Unauthenticated IGLocation = new InstaSharp.Endpoints.Locations.Unauthenticated(Credentials.config);
+            String resultLocation = IGLocation.RecentJson(locationid);
+            JsonValue JsonLocation = JsonValue.Parse(resultLocation);
+            String[] ImageURLLocation = new String[JsonLocation["data"].Count];
+
+            for (int i = 0; i < JsonLocation["data"].Count; i++)
+            {
+                ImageURLLocation[i] = (string)JsonLocation["data"][i]["images"]["standard_resolution"]["url"];
+            }
+            richTextBox2.Clear();
+            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/locations/" + locationid +" \n");
+            richTextBox2.AppendText("Respon Instagram API: \n");
+            for (int i = 0; i < ImageURLLocation.Length; i++)
+            {
+                string output = (string)ImageURLLocation[i];
+                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -367,7 +410,7 @@ namespace LogoDetectionFANET45
                     if (radio.Checked)
                     {
                         richTextBox1.Clear();
-                        richTextBox1.AppendText(radio.Text);
+                        richTextBox1.AppendText("algoritma terpilih: " + radio.Text);
                         algorithm = 1;
                     }
                 }
@@ -384,7 +427,7 @@ namespace LogoDetectionFANET45
                     if (radio.Checked)
                     {
                         richTextBox1.Clear();
-                        richTextBox1.AppendText(radio.Text);
+                        richTextBox1.AppendText("algoritma terpilih: " + radio.Text);
                         algorithm = 2;
                     }
                 }
@@ -401,7 +444,7 @@ namespace LogoDetectionFANET45
                     if (radio.Checked)
                     {
                         richTextBox1.Clear();
-                        richTextBox1.AppendText(radio.Text);
+                        richTextBox1.AppendText("algoritma terpilih: " + radio.Text);
                         algorithm = 3;
                     }
                 }
@@ -467,6 +510,48 @@ namespace LogoDetectionFANET45
         }
         
         private void richTextBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem == "search by user") {
+                label4.Text = "user ID";
+            }
+            else if (comboBox1.SelectedItem == "search by tag") {
+                label4.Text = "tag";
+            }
+            else if (comboBox1.SelectedItem == "search by location")
+            {
+                label4.Text = "location ID";
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (textBox3.Text == null)
+            {
+                richTextBox2.Clear();
+                richTextBox2.AppendText("harap isi user ID/tag/location ID terlebih dahulu \n");
+            }
+            else {
+                if (comboBox1.SelectedItem == "search by user")
+                {
+                    FetchByUser(textBox3.Text);
+                }
+                else if (comboBox1.SelectedItem == "search by tag")
+                {
+                    FetchByTag(textBox3.Text);
+                }
+                else if (comboBox1.SelectedItem == "search by location")
+                {
+                    FetchByLocation(textBox3.Text);
+                }
+            }
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
         {
 
         }
