@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Json;
+using System.Net;
+using System.IO;
 
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -17,8 +19,6 @@ using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Emgu.CV.GPU;
-using System.Net;
-using System.IO;
 
 namespace LogoDetectionFANET45
 {
@@ -41,353 +41,6 @@ namespace LogoDetectionFANET45
         private void imageBox1_Click(object sender, EventArgs e)
         {
 
-        }
-
-        public Image<Bgr, Byte> FAST(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
-        {
-            long matchTime;
-            Stopwatch watch;
-
-            HomographyMatrix homography = null;
-
-            FastDetector fastCPU = new FastDetector(10, true);
-            VectorOfKeyPoint modelKeyPoints;
-            VectorOfKeyPoint observedKeyPoints;
-            Matrix<int> indices;
-
-            BriefDescriptorExtractor descriptor = new BriefDescriptorExtractor();
-
-            Matrix<byte> mask;
-            int k = 2;
-            double uniquenessThreshold = 0.8;
-
-            watch = Stopwatch.StartNew();
-
-            //extract features from the object image
-            modelKeyPoints = fastCPU.DetectKeyPointsRaw(modelImage, null);
-            Matrix<Byte> modelDescriptors = descriptor.ComputeDescriptorsRaw(modelImage, null, modelKeyPoints);
-
-            // extract features from the observed image
-            observedKeyPoints = fastCPU.DetectKeyPointsRaw(observedImage, null);
-            Matrix<Byte> observedDescriptors = descriptor.ComputeDescriptorsRaw(observedImage, null, observedKeyPoints);
-            BruteForceMatcher<Byte> matcher = new BruteForceMatcher<Byte>(DistanceType.L2);
-            matcher.Add(modelDescriptors);
-
-            indices = new Matrix<int>(observedDescriptors.Rows, k);
-            using (Matrix<float> dist = new Matrix<float>(observedDescriptors.Rows, k))
-            {
-                matcher.KnnMatch(observedDescriptors, indices, dist, k, null);
-                mask = new Matrix<byte>(dist.Rows, 1);
-                mask.SetValue(255);
-                Features2DToolbox.VoteForUniqueness(dist, uniquenessThreshold, mask);
-            }
-
-            int nonZeroCount = CvInvoke.cvCountNonZero(mask);
-            if (nonZeroCount >= 4)
-            {
-                nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(modelKeyPoints, observedKeyPoints, indices, mask, 1.5, 20);
-                if (nonZeroCount >= 4)
-                    homography = Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(
-                    modelKeyPoints, observedKeyPoints, indices, mask, 2);
-            }
-
-            watch.Stop();
-
-            //Draw the matched keypoints
-            Image<Bgr, Byte> result = Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints,
-               indices, new Bgr(255, 255, 255), new Bgr(255, 255, 255), mask, Features2DToolbox.KeypointDrawType.DEFAULT);
-
-            #region draw the projected region on the image
-            if (homography != null)
-            {  //draw a rectangle along the projected model
-                Rectangle rect = modelImage.ROI;
-                PointF[] pts = new PointF[] { 
-                 new PointF(rect.Left, rect.Bottom),
-                 new PointF(rect.Right, rect.Bottom),
-                 new PointF(rect.Right, rect.Top),
-                 new PointF(rect.Left, rect.Top)};
-                homography.ProjectPoints(pts);
-
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
-            }
-            #endregion
-
-            matchTime = watch.ElapsedMilliseconds;
-            richTextBox1.Clear();
-            richTextBox1.AppendText("waktu pendeteksian FAST: " + matchTime + "ms\n");
-            richTextBox1.AppendText("fitur model yang terdeteksi: " + modelKeyPoints.Size + "\n");
-            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
-
-            return result;
-        }
-
-        public Image<Bgr, Byte> SURF(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
-        {
-            long matchTime;
-            Stopwatch watch;
-            HomographyMatrix homography = null;
-
-            SURFDetector surfCPU = new SURFDetector(500, false);
-            VectorOfKeyPoint modelKeyPoints;
-            VectorOfKeyPoint observedKeyPoints;
-            Matrix<int> indices;
-
-            Matrix<byte> mask;
-            int k = 2;
-            double uniquenessThreshold = 0.8;
-
-            watch = Stopwatch.StartNew();
-
-            GpuSURFDetector surfGPU = new GpuSURFDetector(surfCPU.SURFParams, 0.01f);
-            using (GpuImage<Gray, Byte> gpuModelImage = new GpuImage<Gray, byte>(modelImage))
-            //extract features from the object image
-            using (GpuMat<float> gpuModelKeyPoints = surfGPU.DetectKeyPointsRaw(gpuModelImage, null))
-            using (GpuMat<float> gpuModelDescriptors = surfGPU.ComputeDescriptorsRaw(gpuModelImage, null, gpuModelKeyPoints))
-            using (GpuBruteForceMatcher<float> matcher = new GpuBruteForceMatcher<float>(DistanceType.L2))
-            {
-                modelKeyPoints = new VectorOfKeyPoint();
-                surfGPU.DownloadKeypoints(gpuModelKeyPoints, modelKeyPoints);
-                //watch = Stopwatch.StartNew();
-
-                // extract features from the observed image
-                using (GpuImage<Gray, Byte> gpuObservedImage = new GpuImage<Gray, byte>(observedImage))
-                using (GpuMat<float> gpuObservedKeyPoints = surfGPU.DetectKeyPointsRaw(gpuObservedImage, null))
-                using (GpuMat<float> gpuObservedDescriptors = surfGPU.ComputeDescriptorsRaw(gpuObservedImage, null, gpuObservedKeyPoints))
-                using (GpuMat<int> gpuMatchIndices = new GpuMat<int>(gpuObservedDescriptors.Size.Height, k, 1, true))
-                using (GpuMat<float> gpuMatchDist = new GpuMat<float>(gpuObservedDescriptors.Size.Height, k, 1, true))
-                using (GpuMat<Byte> gpuMask = new GpuMat<byte>(gpuMatchIndices.Size.Height, 1, 1))
-                using (Emgu.CV.GPU.Stream stream = new Emgu.CV.GPU.Stream())
-                {
-                    matcher.KnnMatchSingle(gpuObservedDescriptors, gpuModelDescriptors, gpuMatchIndices, gpuMatchDist, k, null, stream);
-                    indices = new Matrix<int>(gpuMatchIndices.Size);
-                    mask = new Matrix<byte>(gpuMask.Size);
-
-                    //gpu implementation of voteForUniquess
-                    using (GpuMat<float> col0 = gpuMatchDist.Col(0))
-                    using (GpuMat<float> col1 = gpuMatchDist.Col(1))
-                    {
-                        GpuInvoke.Multiply(col1, new MCvScalar(uniquenessThreshold), col1, stream);
-                        GpuInvoke.Compare(col0, col1, gpuMask, CMP_TYPE.CV_CMP_LE, stream);
-                    }
-
-                    observedKeyPoints = new VectorOfKeyPoint();
-                    surfGPU.DownloadKeypoints(gpuObservedKeyPoints, observedKeyPoints);
-
-                    //wait for the stream to complete its tasks
-                    //We can perform some other CPU intesive stuffs here while we are waiting for the stream to complete.
-                    stream.WaitForCompletion();
-
-                    gpuMask.Download(mask);
-                    gpuMatchIndices.Download(indices);
-
-                    if (GpuInvoke.CountNonZero(gpuMask) >= 4)
-                    {
-                        int nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(modelKeyPoints, observedKeyPoints, indices, mask, 1.5, 20);
-                        if (nonZeroCount >= 4)
-                            homography = Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(modelKeyPoints, observedKeyPoints, indices, mask, 2);
-                    }
-
-                    watch.Stop();
-                }
-            }
-
-            ////extract features from the object image
-            //modelKeyPoints = surfCPU.DetectKeyPointsRaw(modelImage, null);
-            //Matrix<float> modelDescriptors = surfCPU.ComputeDescriptorsRaw(modelImage, null, modelKeyPoints);
-
-            //// extract features from the observed image
-            //observedKeyPoints = surfCPU.DetectKeyPointsRaw(observedImage, null);
-            //Matrix<float> observedDescriptors = surfCPU.ComputeDescriptorsRaw(observedImage, null, observedKeyPoints);
-            //BruteForceMatcher<float> matcher = new BruteForceMatcher<float>(DistanceType.L2);
-            //matcher.Add(modelDescriptors);
-
-            //indices = new Matrix<int>(observedDescriptors.Rows, k);
-            //using (Matrix<float> dist = new Matrix<float>(observedDescriptors.Rows, k))
-            //{
-            //    matcher.KnnMatch(observedDescriptors, indices, dist, k, null);
-            //    mask = new Matrix<byte>(dist.Rows, 1);
-            //    mask.SetValue(255);
-            //    Features2DToolbox.VoteForUniqueness(dist, uniquenessThreshold, mask);
-            //}
-
-            //int nonZeroCount = CvInvoke.cvCountNonZero(mask);
-            //if (nonZeroCount >= 4)
-            //{
-            //    nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(modelKeyPoints, observedKeyPoints, indices, mask, 1.5, 20);
-            //    if (nonZeroCount >= 4)
-            //        homography = Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(modelKeyPoints, observedKeyPoints, indices, mask, 2);
-            //}
-
-            //watch.Stop();
-
-            //Draw the matched keypoints
-            Image<Bgr, Byte> result = Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints,
-               indices, new Bgr(255, 255, 255), new Bgr(255, 255, 255), mask, Features2DToolbox.KeypointDrawType.DEFAULT);
-
-            #region draw the projected region on the image
-            if (homography != null)
-            {  //draw a rectangle along the projected model
-                Rectangle rect = modelImage.ROI;
-                PointF[] pts = new PointF[] { 
-               new PointF(rect.Left, rect.Bottom),
-               new PointF(rect.Right, rect.Bottom),
-               new PointF(rect.Right, rect.Top),
-               new PointF(rect.Left, rect.Top)};
-                homography.ProjectPoints(pts);
-
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
-            }
-            #endregion
-
-            matchTime = watch.ElapsedMilliseconds;
-            richTextBox1.Clear();
-            richTextBox1.AppendText("waktu pendeteksian SURF: " + matchTime + "ms\n");
-            richTextBox1.AppendText("fitur model yang terdeteksi: " + modelKeyPoints.Size + "\n");
-            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
-            return result;
-        }
-
-        public Image<Bgr, Byte> SIFT(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
-        {
-            long matchTime;
-            Stopwatch watch;
-            HomographyMatrix homography = null;
-
-            SIFTDetector siftCPU = new SIFTDetector();
-            VectorOfKeyPoint modelKeyPoints;
-            VectorOfKeyPoint observedKeyPoints;
-            Matrix<int> indices;
-
-            Matrix<byte> mask;
-            int k = 2;
-            double uniquenessThreshold = 0.8;
-
-            watch = Stopwatch.StartNew();
-
-            //extract features from the object image
-            modelKeyPoints = siftCPU.DetectKeyPointsRaw(modelImage, null);
-            Matrix<float> modelDescriptors = siftCPU.ComputeDescriptorsRaw(modelImage, null, modelKeyPoints);
-
-            // extract features from the observed image
-            observedKeyPoints = siftCPU.DetectKeyPointsRaw(observedImage, null);
-            Matrix<float> observedDescriptors = siftCPU.ComputeDescriptorsRaw(observedImage, null, observedKeyPoints);
-            BruteForceMatcher<float> matcher = new BruteForceMatcher<float>(DistanceType.L2);
-            matcher.Add(modelDescriptors);
-
-            indices = new Matrix<int>(observedDescriptors.Rows, k);
-            using (Matrix<float> dist = new Matrix<float>(observedDescriptors.Rows, k))
-            {
-                matcher.KnnMatch(observedDescriptors, indices, dist, k, null);
-                mask = new Matrix<byte>(dist.Rows, 1);
-                mask.SetValue(255);
-                Features2DToolbox.VoteForUniqueness(dist, uniquenessThreshold, mask);
-            }
-
-            int nonZeroCount = CvInvoke.cvCountNonZero(mask);
-            if (nonZeroCount >= 4)
-            {
-                nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(modelKeyPoints, observedKeyPoints, indices, mask, 1.5, 20);
-                if (nonZeroCount >= 4)
-                    homography = Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(modelKeyPoints, observedKeyPoints, indices, mask, 2);
-            }
-
-            watch.Stop();
-
-            //Draw the matched keypoints
-            Image<Bgr, Byte> result = Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints,
-               indices, new Bgr(255, 255, 255), new Bgr(255, 255, 255), mask, Features2DToolbox.KeypointDrawType.DEFAULT);
-
-            #region draw the projected region on the image
-            if (homography != null)
-            {  //draw a rectangle along the projected model
-                Rectangle rect = modelImage.ROI;
-                PointF[] pts = new PointF[] { 
-                   new PointF(rect.Left, rect.Bottom),
-                   new PointF(rect.Right, rect.Bottom),
-                   new PointF(rect.Right, rect.Top),
-                   new PointF(rect.Left, rect.Top)};
-                homography.ProjectPoints(pts);
-
-                result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
-            }
-            #endregion
-
-            matchTime = watch.ElapsedMilliseconds;
-            richTextBox1.Clear();
-            richTextBox1.AppendText("waktu pendeteksian SIFT: " + matchTime + "ms\n");
-            richTextBox1.AppendText("fitur mentah pada model yang terdeteksi: " + modelKeyPoints.Size + "\n");
-            richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
-            return result;
-        }
-
-        public void FetchByUser(string userid) {
-            richTextBox2.Clear();
-            richTextBox2.AppendText("Fetching Instagram API data...");
-
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.instagram.com/v1/users/"+ userid +"/media/recent/?access_token=" + Credentials.access_token);
-            HttpWebResponse httpWebReponse = (HttpWebResponse)request.GetResponse();
-            System.IO.Stream dataStream = httpWebReponse.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string UserJson = reader.ReadToEnd();
-            dataStream.Close();
-            reader.Close();
-
-            JsonValue JsonUser = JsonObject.Parse(UserJson);
-            String[] ImageURLUser = new String[JsonUser["data"].Count];
-
-            for (int i = 0; i < JsonUser["data"].Count; i++)
-            {
-                ImageURLUser[i] = (string)JsonUser["data"][i]["images"]["standard_resolution"]["url"];
-            }
-            richTextBox2.Clear();
-            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/users/" + userid +"/media/recent/?access_token=**** \n");
-            richTextBox2.AppendText("Respon Instagram API: \n");
-            for (int i = 0; i < ImageURLUser.Length; i++)
-            {
-                string output = (string)ImageURLUser[i];
-                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
-            }
-        }
-
-        public void FetchByTag(string tag){
-            InstaSharp.Endpoints.Tags.Unauthenticated IGTags = new InstaSharp.Endpoints.Tags.Unauthenticated(Credentials.config);
-            InstaSharp.Model.Responses.MediasResponse responTags = IGTags.Recent(tag, "0", "1");
-            String resultTags = responTags.Json;
-            JsonValue JsonTags = JsonValue.Parse(resultTags);
-            String[] ImageURLTags = new String[JsonTags["data"].Count];
-
-            for (int i = 0; i < JsonTags["data"].Count; i++)
-            {
-                ImageURLTags[i] = (string)JsonTags["data"][i]["images"]["standard_resolution"]["url"];
-            }
-            richTextBox2.Clear();
-            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/" + tag + "/snow/media/recent \n");
-            richTextBox2.AppendText("Respon Instagram API: \n");
-            for (int i = 0; i < ImageURLTags.Length; i++)
-            {
-                string output = (string)ImageURLTags[i];
-                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
-            }
-        }
-
-        public void FetchByLocation(string locationid) { 
-            InstaSharp.Endpoints.Locations.Unauthenticated IGLocation = new InstaSharp.Endpoints.Locations.Unauthenticated(Credentials.config);
-            String resultLocation = IGLocation.RecentJson(locationid);
-            JsonValue JsonLocation = JsonValue.Parse(resultLocation);
-            String[] ImageURLLocation = new String[JsonLocation["data"].Count];
-
-            for (int i = 0; i < JsonLocation["data"].Count; i++)
-            {
-                ImageURLLocation[i] = (string)JsonLocation["data"][i]["images"]["standard_resolution"]["url"];
-            }
-            richTextBox2.Clear();
-            richTextBox2.AppendText("Request client: https://api.instagram.com/v1/locations/" + locationid +" \n");
-            richTextBox2.AppendText("Respon Instagram API: \n");
-            for (int i = 0; i < ImageURLLocation.Length; i++)
-            {
-                string output = (string)ImageURLLocation[i];
-                richTextBox2.AppendText(output.Replace(@"\", String.Empty) + "\n");
-            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -492,13 +145,13 @@ namespace LogoDetectionFANET45
                 switch (algorithm)
                 {
                     case 1:
-                        imageBox1.Image = FAST(model, observed);
+                        imageBox1.Image = Detector.FAST(model, observed);
                         break;
                     case 2:
-                        imageBox1.Image = SURF(model, observed);
+                        imageBox1.Image = Detector.SURF(model, observed);
                         break;
                     case 3:
-                        imageBox1.Image = SIFT(model, observed);
+                        imageBox1.Image = Detector.SIFT(model, observed);
                         break;
                 }
             }
@@ -538,15 +191,15 @@ namespace LogoDetectionFANET45
             else {
                 if (comboBox1.SelectedItem == "search by user")
                 {
-                    FetchByUser(textBox3.Text);
+                    Instagram.FetchByUser(textBox3.Text);
                 }
                 else if (comboBox1.SelectedItem == "search by tag")
                 {
-                    FetchByTag(textBox3.Text);
+                    Instagram.FetchByTag(textBox3.Text);
                 }
                 else if (comboBox1.SelectedItem == "search by location")
                 {
-                    FetchByLocation(textBox3.Text);
+                    Instagram.FetchByLocation(textBox3.Text);
                 }
             }
         }
