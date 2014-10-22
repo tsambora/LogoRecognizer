@@ -29,6 +29,8 @@ namespace LogoDetectionFANET45
 
         public static Image<Bgr, Byte> FAST(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
+            bool isFound = true;
+
             long matchTime;
             Stopwatch watch;
 
@@ -92,12 +94,16 @@ namespace LogoDetectionFANET45
                  new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
+                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                    isFound = true;
+
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             _richTextBox1.Clear();
+            _richTextBox1.AppendText("objek ditemukan: " + isFound + "\n");
             _richTextBox1.AppendText("waktu pendeteksian FAST: " + matchTime + "ms\n");
             _richTextBox1.AppendText("fitur model yang terdeteksi: " + modelKeyPoints.Size + "\n");
             _richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
@@ -107,6 +113,8 @@ namespace LogoDetectionFANET45
 
         public static Image<Bgr, Byte> SURF(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
+            bool isFound = false;
+
             long matchTime;
             Stopwatch watch;
             HomographyMatrix homography = null;
@@ -219,12 +227,16 @@ namespace LogoDetectionFANET45
                new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
+                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                    isFound = true;
+
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             _richTextBox1.Clear();
+            _richTextBox1.AppendText("objek ditemukan: " + isFound + "\n");
             _richTextBox1.AppendText("waktu pendeteksian SURF: " + matchTime + "ms\n");
             _richTextBox1.AppendText("fitur model yang terdeteksi: " + modelKeyPoints.Size + "\n");
             _richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
@@ -233,6 +245,8 @@ namespace LogoDetectionFANET45
 
         public static Image<Bgr, Byte> SIFT(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
+            bool isFound = false;
+
             long matchTime;
             Stopwatch watch;
             HomographyMatrix homography = null;
@@ -292,12 +306,16 @@ namespace LogoDetectionFANET45
                    new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
+                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                    isFound = true;
+
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
 
             matchTime = watch.ElapsedMilliseconds;
             _richTextBox1.Clear();
+            _richTextBox1.AppendText("objek ditemukan: " + isFound + "\n");
             _richTextBox1.AppendText("waktu pendeteksian SIFT: " + matchTime + "ms\n");
             _richTextBox1.AppendText("fitur mentah pada model yang terdeteksi: " + modelKeyPoints.Size + "\n");
             _richTextBox1.AppendText("match yang ditemukan: " + CvInvoke.cvCountNonZero(mask).ToString());
