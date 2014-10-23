@@ -28,6 +28,8 @@ namespace LogoDetectionFANET45
         Image<Gray, Byte> observed;
         int algorithm;
 
+        Form Form2 = new Form2();
+
         public Form1()
         {
             InitializeComponent();
@@ -207,6 +209,11 @@ namespace LogoDetectionFANET45
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Form2.Show();
         }
     }
 }

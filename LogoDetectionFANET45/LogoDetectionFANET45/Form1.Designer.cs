@@ -47,6 +47,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -228,11 +229,22 @@
             this.label4.TabIndex = 18;
             this.label4.Text = "label4";
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(740, 586);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(137, 43);
+            this.button4.TabIndex = 19;
+            this.button4.Text = "TEST MODE";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(889, 592);
+            this.ClientSize = new System.Drawing.Size(889, 641);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.label3);
@@ -279,6 +291,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label4;
         public System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.Button button4;
     }
 }
 
