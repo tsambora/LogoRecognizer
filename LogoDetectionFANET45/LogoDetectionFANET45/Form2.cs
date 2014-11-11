@@ -26,6 +26,7 @@ namespace LogoDetectionFANET45
     public partial class Form2 : Form
     {
         List<Image<Gray, Byte>> ModelList = new List<Image<Gray, Byte>>();
+        List<String> testLabel = new List<String>();
         List<Image<Gray, byte>> ObservedList = new List<Image<Gray, byte>>();
 
         int algorithm;
@@ -35,7 +36,7 @@ namespace LogoDetectionFANET45
             InitializeComponent();
         }
 
-        public static bool testSIFT(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
+        public bool testSIFT(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
             bool isFound = false;
             HomographyMatrix homography = null;
@@ -91,7 +92,7 @@ namespace LogoDetectionFANET45
                    new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
@@ -100,7 +101,7 @@ namespace LogoDetectionFANET45
             return isFound;
         }
 
-        public static void runSIFTTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed) {
+        public String runSIFTTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed, bool log) {
             RichTextBox _richTextBox1 = (RichTextBox)Application.OpenForms["Form2"].Controls.Find("richTextBox1", false).FirstOrDefault();
             bool[] res = new bool[models.Count];
 
@@ -110,14 +111,38 @@ namespace LogoDetectionFANET45
                 i++;
             }
 
-            _richTextBox1.AppendText("RESULT: ");
-            foreach (bool r in res) {
-                _richTextBox1.AppendText(r + " ");
+            String label = "";
+            List<TextBox> boxes =
+                new List<TextBox> { 
+                    textBox1,
+                    textBox2,
+                    textBox3,
+                    textBox4,
+                    textBox5
+                };
+
+            if (log == true)
+                _richTextBox1.AppendText(" Hasil deteksi: ");
+
+            for (int j = 0; j < res.Length; j++)
+            {
+                if (res[j] == true)
+                {
+                    label = boxes[j].Text;
+                }
             }
-            _richTextBox1.AppendText("\n");
+            if (label == "")
+            {
+                label = "tidak ditemukan logo";
+            }
+
+            if (log == true)
+                _richTextBox1.AppendText("'" + label.ToUpper() + "'");
+
+            return label;
         }
 
-        public static bool testSURF(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
+        public bool testSURF(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
             bool isFound = false;
 
@@ -198,7 +223,7 @@ namespace LogoDetectionFANET45
                new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
@@ -207,7 +232,7 @@ namespace LogoDetectionFANET45
             return isFound;
         }
 
-        public static void runSURFTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed)
+        public String runSURFTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed, bool log)
         {
             RichTextBox _richTextBox1 = (RichTextBox)Application.OpenForms["Form2"].Controls.Find("richTextBox1", false).FirstOrDefault();
             bool[] res = new bool[models.Count];
@@ -219,17 +244,39 @@ namespace LogoDetectionFANET45
                 i++;
             }
 
-            _richTextBox1.AppendText("RESULT: ");
-            foreach (bool r in res)
+            String label = "";
+            List<TextBox> boxes =
+                new List<TextBox> { 
+                    textBox1,
+                    textBox2,
+                    textBox3,
+                    textBox4,
+                    textBox5
+                };
+            if (log == true)
+                _richTextBox1.AppendText(" Hasil deteksi: "); 
+
+            for (int j = 0; j < res.Length; j++)
             {
-                _richTextBox1.AppendText(r + " ");
+                if (res[j] == true)
+                {
+                    label = boxes[j].Text;
+                }
             }
-            _richTextBox1.AppendText("\n");
+            if (label == "")
+            {
+                label = "tidak ditemukan logo";
+            }
+
+            if(log == true)
+                _richTextBox1.AppendText("'" + label.ToUpper() + "'");
+            
+            return label;
         }
 
-        public static bool testFAST(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
+        public bool testFAST(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
-            bool isFound = true;
+            bool isFound = false;
 
             HomographyMatrix homography = null;
 
@@ -287,7 +334,7 @@ namespace LogoDetectionFANET45
                  new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
@@ -296,7 +343,7 @@ namespace LogoDetectionFANET45
             return isFound;
         }
 
-        public static void runFASTTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed)
+        public String runFASTTest(List<Image<Gray, Byte>> models, Image<Gray, byte> observed, bool log)
         {
             RichTextBox _richTextBox1 = (RichTextBox)Application.OpenForms["Form2"].Controls.Find("richTextBox1", false).FirstOrDefault();
             bool[] res = new bool[models.Count];
@@ -308,12 +355,35 @@ namespace LogoDetectionFANET45
                 i++;
             }
 
-            _richTextBox1.AppendText("RESULT: ");
-            foreach (bool r in res)
+            String label = "";
+            List<TextBox> boxes =
+                new List<TextBox> { 
+                    textBox1,
+                    textBox2,
+                    textBox3,
+                    textBox4,
+                    textBox5
+                };
+
+            if (log == true)
+                _richTextBox1.AppendText(" Hasil deteksi: ");
+
+            for (int j = 0; j < res.Length; j++)
             {
-                _richTextBox1.AppendText(r + " ");
+                if (res[j] == true)
+                {
+                    label = boxes[j].Text;
+                }
             }
-            _richTextBox1.AppendText("\n");
+            if (label == "")
+            {
+                label = "tidak ditemukan logo";
+            }
+
+            if (log == true)
+                _richTextBox1.AppendText("'" + label.ToUpper() + "'");
+
+            return label;
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -1628,6 +1698,7 @@ namespace LogoDetectionFANET45
 
         private void button3_Click(object sender, EventArgs e)
         {
+            float n, acc, perc;
             if (ModelList.Count == 0 || ObservedList.Count == 0)
             {
                 richTextBox1.Clear();
@@ -1638,21 +1709,70 @@ namespace LogoDetectionFANET45
                 switch (algorithm)
                 {
                     case 1:
-                        foreach (Image<Gray, byte> observed in ObservedList)
-                        {
-                            runFASTTest(ModelList, observed);
+                        n = 1;
+                        acc = 0;
+                        testLabel.Clear();
+                        for (int i = 0; i < ObservedList.Count; i++) {
+                            richTextBox1.AppendText(n + ". ");
+                            testLabel.Add(runFASTTest(ModelList, ObservedList[i], true));
+                            richTextBox1.AppendText(", jawaban yang benar: " + "'" + db.labels[i].ToUpper() + "'");
+                            if (runFASTTest(ModelList, ObservedList[i], false) == db.labels[i])
+                            {
+                                acc++;
+                                richTextBox1.AppendText("=> BETUL \n");
+                            }
+                            else
+                            {
+                                richTextBox1.AppendText("=> SALAH \n");
+                            }
+                            n++;
                         }
+                        perc = (float)(acc / testLabel.Count) * 100;
+                        richTextBox1.AppendText("Akurasi tes FAST:" + perc + "%\n");
                         break;
                     case 2:
-                        foreach (Image<Gray, byte> observed in ObservedList)
-                        {
-                            runSURFTest(ModelList, observed);
+                        n = 1;
+                        acc = 0;
+                        testLabel.Clear();
+                        for (int i = 0; i < ObservedList.Count; i++) {
+                            richTextBox1.AppendText(n + ". ");
+                            testLabel.Add(runSURFTest(ModelList, ObservedList[i], true));
+                            richTextBox1.AppendText(", jawaban yang benar: " + "'" + db.labels[i].ToUpper() + "'");
+                            if (runSURFTest(ModelList, ObservedList[i], false) == db.labels[i])
+                            {
+                                acc++;
+                                richTextBox1.AppendText("=> BETUL \n");
+                            }
+                            else
+                            {
+                                richTextBox1.AppendText("=> SALAH \n");
+                            }
+                            n++;
                         }
+                        perc = acc / testLabel.Count * 100;
+                        richTextBox1.AppendText("Akurasi tes SURF:" + perc + "%\n");
                         break;
                     case 3:
-                        foreach (Image<Gray, byte> observed in ObservedList) {
-                            runSIFTTest(ModelList, observed);
+                        n = 1;
+                        acc = 0;
+                        testLabel.Clear();
+                        for (int i = 0; i < ObservedList.Count; i++) {
+                            richTextBox1.AppendText(n + ". ");
+                            testLabel.Add(runSIFTTest(ModelList, ObservedList[i], true));
+                            richTextBox1.AppendText(", jawaban yang benar: " + "'" + db.labels[i].ToUpper() + "'");
+                            if (runSIFTTest(ModelList, ObservedList[i], false) == db.labels[i])
+                            {
+                                acc++;
+                                richTextBox1.AppendText("=> BETUL \n");
+                            }
+                            else
+                            {
+                                richTextBox1.AppendText("=> SALAH \n");
+                            }
+                            n++;
                         }
+                        perc = acc / testLabel.Count * 100;
+                        richTextBox1.AppendText("Akurasi tes SIFT:" + perc + "%\n");
                         break;
                 }
             }
@@ -1661,6 +1781,31 @@ namespace LogoDetectionFANET45
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            ObservedList.Clear();
+            foreach (string dir in db.images) {
+                ObservedList.Add(new Image<Gray, byte>(dir));
+            }
+            List<ImageBox> boxes =
+                new List<ImageBox> { 
+                    imageBox10,
+                    imageBox9,
+                    imageBox8,
+                    imageBox7,
+                    imageBox6,
+                    imageBox15,
+                    imageBox14,
+                    imageBox13,
+                    imageBox12,
+                    imageBox11
+                };
+            for (int i = 0; i < db.images.Count; i++) {
+                boxes[i].Image = new Image<Rgba, Byte>(db.images[i]);
+                boxes[i].SizeMode = PictureBoxSizeMode.StretchImage;
+            }
         }
     }
 }

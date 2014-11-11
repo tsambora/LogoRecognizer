@@ -29,7 +29,7 @@ namespace LogoDetectionFANET45
 
         public static Image<Bgr, Byte> FAST(Image<Gray, Byte> modelImage, Image<Gray, byte> observedImage)
         {
-            bool isFound = true;
+            bool isFound = false;
 
             long matchTime;
             Stopwatch watch;
@@ -94,9 +94,10 @@ namespace LogoDetectionFANET45
                  new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
+                
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
             }
             #endregion
@@ -227,7 +228,7 @@ namespace LogoDetectionFANET45
                new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
@@ -306,7 +307,7 @@ namespace LogoDetectionFANET45
                    new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (rect.Left != null && rect.Right != null && rect.Top != null && rect.Right != null)
+                if (CvInvoke.cvCountNonZero(mask) >= 25)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);
