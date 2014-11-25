@@ -844,7 +844,7 @@
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form2";
-            this.Text = "TEST MODE";
+            this.Text = "PENGUJIAN ALGORITMA";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

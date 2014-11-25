@@ -29,6 +29,7 @@ namespace LogoDetectionFANET45
         int algorithm;
 
         Form Form2 = new Form2();
+        Form Form3 = new Form3();
 
         public Form1()
         {
@@ -214,6 +215,11 @@ namespace LogoDetectionFANET45
         private void button4_Click(object sender, EventArgs e)
         {
             Form2.Show();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Form3.Show();
         }
     }
 }

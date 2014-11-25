@@ -307,7 +307,7 @@ namespace LogoDetectionFANET45
                    new PointF(rect.Left, rect.Top)};
                 homography.ProjectPoints(pts);
 
-                if (CvInvoke.cvCountNonZero(mask) >= 25)
+                if (CvInvoke.cvCountNonZero(mask) >= 10)
                     isFound = true;
 
                 result.DrawPolyline(Array.ConvertAll<PointF, Point>(pts, Point.Round), true, new Bgr(Color.LightGreen), 5);

@@ -26,5 +26,45 @@ namespace LogoDetectionFANET45
                 "starbucks",
                 "mcdonalds"
             };
+        public static List<DateTime> dates =
+            new List<DateTime>
+            {
+                new DateTime(2014,11,25),
+                new DateTime(2014,11,25),
+                new DateTime(2014,11,24),
+                new DateTime(2014,11,24),
+                new DateTime(2014,11,23),
+                new DateTime(2014,11,22)
+            };
+        public static List<String> location =
+            new List<String> 
+            { 
+                "31",
+                "31",
+                "31",
+                "32",
+                "32",
+                "51"
+            };
+        public static List<String> username =
+            new List<String> 
+            { 
+                "ponta0225",
+                "thenewboston",
+                "alexanderwangny",
+                "beachb0y",
+                "aditpk",
+                "muhammadiqbal2777"
+            };
+        public static List<int> followers =
+            new List<int> 
+            { 
+                551,
+                105,
+                664,
+                14,
+                60,
+                420
+            };
     }
 }
