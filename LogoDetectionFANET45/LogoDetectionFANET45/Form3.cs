@@ -44,7 +44,8 @@ namespace LogoDetectionFANET45
             InitializeComponent();
 
             fetch_GeoData(dateTimePicker1.Value);
-            init_chart();
+            fetch_ChartDate("Harian");
+            comboBox1.Text = "Harian";
         }
 
         private void fetch_GeoData(DateTime date) {
@@ -86,28 +87,74 @@ namespace LogoDetectionFANET45
         }
 
         private void fetch_ChartDate(string range) {
-            DateTime[] dates;
-            KeyValuePair<string, string> a = new KeyValuePair<string, string>();
+            switch (range){
+                case "Harian":
+                    groupByDays(db.dummyChartStats);
+                    break;
+                case "Mingguan":
+                    groupByWeeks(db.dummyChartStats);
+                    break;
+                case "Bulanan":
+                    groupByMonths(db.dummyChartStats);
+                    break;
+            }
         }
 
-        private void init_chart() {
-            // Data arrays.
-            string[] seriesArray = { "Cats", "Dogs" };
-            int[] pointsArray = { 1, 2 };
+        private void groupByMonths(List<KeyValuePair<DateTime, int>> _stats) { 
 
-            this.chart1.Palette = ChartColorPalette.Fire;
+        }
 
-            // Set title.
-            this.chart1.Titles.Add("Pets");
-
-            // Add series.
-            for (int i = 0; i < seriesArray.Length; i++)
+        private void groupByWeeks(List<KeyValuePair<DateTime, int>> _stats) {
+            String[] ranges = new String[4];
+            int[] counts = new int[4];
+            int index = _stats.Count - 1;
+            for (int i = ranges.Length - 1; i >= 0; i--)
             {
-                // Add series.
-                Series series = this.chart1.Series.Add(seriesArray[i]);
+                ranges[i] = "";
+                counts[i] = 0;
+                int limit = 7;
+                do
+                {
+                    if (index == 0)
+                    {
+                        ranges[i] += " s/d " + _stats[index].Key + "\n";
+                        goto draw;
+                    }
+                    if (limit == 7)
+                        ranges[i] += _stats[index].Key;
+                    if (limit == 1)
+                        ranges[i] += " s/d " + _stats[index].Key + "\n";
 
-                // Add point.
-                series.Points.Add(pointsArray[i]);
+                    counts[i] = counts[i] + _stats[index].Value;
+                    index--;
+                    limit--;
+                } while (limit > 0);
+            }
+            draw:
+            this.chart1.Series.Clear();
+            this.chart1.Palette = ChartColorPalette.Fire;
+            for (int i = 0; i < ranges.Length; i++)
+            {
+                Series series = this.chart1.Series.Add(ranges[i]);
+                series.Points.Add((double)counts[i]);
+            }
+        }
+
+        private void groupByDays(List<KeyValuePair<DateTime, int>> _stats)
+        {
+            DateTime[] days = new DateTime[7];
+            int[] counts = new int[7];
+            int index = _stats.Count - 1;
+            for (int i = days.Length - 1; i >= 0; i--) {
+                days[i] = _stats[index].Key;
+                counts[i] = _stats[index].Value;
+                index--;
+            }
+            this.chart1.Series.Clear();
+            this.chart1.Palette = ChartColorPalette.Fire;
+            for (int i = 0; i < days.Length; i++) {
+                Series series = this.chart1.Series.Add(days[i].ToString());
+                series.Points.Add((double)counts[i]);
             }
         }
 
@@ -129,6 +176,11 @@ namespace LogoDetectionFANET45
         private void chart1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            fetch_ChartDate(comboBox1.Text);
         }
     }
 }

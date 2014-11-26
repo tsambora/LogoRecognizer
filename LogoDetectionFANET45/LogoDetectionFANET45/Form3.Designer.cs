@@ -129,6 +129,7 @@
             this.comboBox1.Size = new System.Drawing.Size(169, 21);
             this.comboBox1.TabIndex = 1;
             this.comboBox1.Text = "(pilih skala)";
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // chart1
             // 
