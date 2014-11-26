@@ -140,8 +140,43 @@ namespace LogoDetectionFANET45
             }
         }
 
-        private void groupByMonths(List<KeyValuePair<DateTime, int>> _stats) { 
+        private void groupByMonths(List<KeyValuePair<DateTime, int>> _stats) {
+            String[] ranges = new String[12];
+            int[] counts = new int[12];
+            int index = _stats.Count - 1;
 
+            for (int i = ranges.Length - 1; i >= 0; i--)
+            {
+                ranges[i] = "";
+                counts[i] = 0;
+                int limit = 30;
+                do
+                {
+                    if (index == 0)
+                    {
+                        ranges[i] += " s/d " + _stats[index].Key + "\n";
+                        goto draw;
+                    }
+                    if (limit == 30)
+                        ranges[i] += _stats[index].Key;
+                    if (limit == 1)
+                        ranges[i] += " s/d " + _stats[index].Key + "\n";
+
+                    counts[i] = counts[i] + _stats[index].Value;
+                    index--;
+                    limit--;
+                } while (limit > 0);
+            }
+            draw:
+            this.chart1.Series.Clear();
+            this.chart1.Palette = ChartColorPalette.Fire;
+            for (int i = 0; i < ranges.Length; i++)
+            {
+                if (ranges[i] != null) {
+                    Series series = this.chart1.Series.Add(ranges[i]);
+                    series.Points.Add((double)counts[i]);
+                }
+            }
         }
 
         private void groupByWeeks(List<KeyValuePair<DateTime, int>> _stats) {
@@ -175,8 +210,10 @@ namespace LogoDetectionFANET45
             this.chart1.Palette = ChartColorPalette.Fire;
             for (int i = 0; i < ranges.Length; i++)
             {
-                Series series = this.chart1.Series.Add(ranges[i]);
-                series.Points.Add((double)counts[i]);
+                if (ranges[i] != null) {
+                    Series series = this.chart1.Series.Add(ranges[i]);
+                    series.Points.Add((double)counts[i]);
+                }
             }
         }
 
@@ -193,8 +230,10 @@ namespace LogoDetectionFANET45
             this.chart1.Series.Clear();
             this.chart1.Palette = ChartColorPalette.Fire;
             for (int i = 0; i < days.Length; i++) {
-                Series series = this.chart1.Series.Add(days[i].ToString());
-                series.Points.Add((double)counts[i]);
+                if (days[i] != null) {
+                    Series series = this.chart1.Series.Add(days[i].ToString());
+                    series.Points.Add((double)counts[i]);
+                }
             }
         }
 
