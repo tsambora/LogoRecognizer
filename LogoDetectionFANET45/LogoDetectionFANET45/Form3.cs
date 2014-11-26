@@ -86,6 +86,46 @@ namespace LogoDetectionFANET45
             mapBox1.Refresh();
         }
 
+        private void fetch_GeoDataAll() {
+            List<String> res = new List<String>();
+            for (int i = 0; i < db.location.Count; i++)
+            {
+                res.Add(db.location[i]);
+            }
+            int[] colorMap = new int[95];
+            foreach (String s in res)
+            {
+                for (int i = 0; i < 95; i++)
+                {
+                    if (s == i.ToString())
+                    {
+                        colorMap[i]++;
+                    }
+                }
+            }
+
+            Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
+            VectorStyle detectedArea = new VectorStyle();
+            VectorStyle def = new VectorStyle();
+            def.Fill = new SolidBrush(Color.FromArgb(255, 255, 255));
+            for (int i = 0; i < colorMap.Length; i++)
+            {
+                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
+                if (colorMap[i] > 0)
+                {
+                    styles.Add(i.ToString(), detectedArea);
+                }
+                else
+                    styles.Add(i.ToString(), def);
+            }
+
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
+            mapBox1.Map.Layers.Add(vlay);
+            mapBox1.Map.ZoomToExtents();
+            mapBox1.Refresh();
+        }
+
         private void fetch_ChartDate(string range) {
             switch (range){
                 case "Harian":
@@ -181,6 +221,11 @@ namespace LogoDetectionFANET45
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             fetch_ChartDate(comboBox1.Text);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            fetch_GeoDataAll();
         }
     }
 }

@@ -44,7 +44,7 @@ namespace LogoDetectionFANET45
                 "31",
                 "32",
                 "32",
-                "51"
+                "91"
             };
         public static List<String> username =
             new List<String> 
@@ -74,7 +74,6 @@ namespace LogoDetectionFANET45
                 new KeyValuePair<DateTime,int>(new DateTime(2014,11,23), 1),
                 new KeyValuePair<DateTime,int>(new DateTime(2014,11,22), 1),
             };
-
         public static List<KeyValuePair<DateTime, int>> dummyChartStats =
             new List<KeyValuePair<DateTime, int>>
             {
