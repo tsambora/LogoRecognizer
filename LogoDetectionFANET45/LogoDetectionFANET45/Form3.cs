@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 using System.Json;
 using System.Net;
 using System.IO;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -35,42 +37,98 @@ namespace LogoDetectionFANET45
 {
     public partial class Form3 : Form
     {
+        SharpMap.Layers.VectorLayer vlay = new SharpMap.Layers.VectorLayer("Indonesia");
+
         public Form3()
         {
             InitializeComponent();
 
-            SharpMap.Layers.VectorLayer vlay = new SharpMap.Layers.VectorLayer("Indonesia");
-            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            fetch_GeoData(dateTimePicker1.Value);
+            init_chart();
+        }
 
-            //Create the style for Land
-            VectorStyle landStyle = new VectorStyle();
-            landStyle.Fill = new SolidBrush(Color.FromArgb(232, 232, 232));
+        private void fetch_GeoData(DateTime date) {
+            List<String> res = new List<String>();
+            for (int i = 0; i < db.dates.Count; i++) {
+                if (date.Year == db.dates[i].Year && date.Month == db.dates[i].Month && date.Day == db.dates[i].Day)
+                {
+                    res.Add(db.location[i]);
+                }
+            }
 
-            //Create the style for Water
-            VectorStyle waterStyle = new VectorStyle();
-            waterStyle.Fill = new SolidBrush(Color.FromArgb(198, 198, 255));
+            int[] colorMap = new int[95];
+            foreach (String s in res) {
+                for (int i = 0; i < 95; i++) {
+                    if (s == i.ToString()) {
+                        colorMap[i]++;
+                    }
+                }
+            }
 
-            //Create the map
             Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
-            styles.Add("51", landStyle);
-            styles.Add("36", waterStyle);
+            VectorStyle detectedArea = new VectorStyle();
+            VectorStyle def = new VectorStyle();
+            def.Fill = new SolidBrush(Color.FromArgb(255,255,255));
+            for(int i = 0; i < colorMap.Length; i++){
+                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
+                if (colorMap[i] > 0){
+                    styles.Add(i.ToString(), detectedArea);
+                }
+                else 
+                    styles.Add(i.ToString(), def);
+            }
 
-            //Assign the theme
-            vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, landStyle);
-
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
             mapBox1.Map.Layers.Add(vlay);
             mapBox1.Map.ZoomToExtents();
             mapBox1.Refresh();
         }
 
+        private void fetch_ChartDate(string range) {
+            DateTime[] dates;
+            KeyValuePair<string, string> a = new KeyValuePair<string, string>();
+        }
+
+        private void init_chart() {
+            // Data arrays.
+            string[] seriesArray = { "Cats", "Dogs" };
+            int[] pointsArray = { 1, 2 };
+
+            this.chart1.Palette = ChartColorPalette.Fire;
+
+            // Set title.
+            this.chart1.Titles.Add("Pets");
+
+            // Add series.
+            for (int i = 0; i < seriesArray.Length; i++)
+            {
+                // Add series.
+                Series series = this.chart1.Series.Add(seriesArray[i]);
+
+                // Add point.
+                series.Points.Add(pointsArray[i]);
+            }
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+            fetch_GeoData(dateTimePicker1.Value);
+        }
+
         private void Form3_Load(object sender, EventArgs e)
         {
-          
+
         }
 
         private void mapBox1_Click(object sender, EventArgs e)
         {
-            
+
+        }
+
+        private void chart1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
