@@ -80,6 +80,8 @@
     <Reference Include="InstaSharp">
       <HintPath>..\..\..\..\..\Desktop\desktop\InstaSharp-0.9.0\InstaSharp-0.9.0\bin\Debug\InstaSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="NetTopologySuite">
       <HintPath>..\packages\NetTopologySuite.1.13.2\lib\net20\NetTopologySuite.dll</HintPath>
     </Reference>

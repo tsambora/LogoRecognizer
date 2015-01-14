@@ -46,6 +46,7 @@ namespace LogoDetectionFANET45
             fetch_GeoData(dateTimePicker1.Value);
             fetch_ChartDate("Harian");
             comboBox1.Text = "Harian";
+            //lineChartTest();
         }
 
         private void fetch_GeoData(DateTime date) {
@@ -168,13 +169,13 @@ namespace LogoDetectionFANET45
                 } while (limit > 0);
             }
             draw:
-            this.chart1.Series.Clear();
-            this.chart1.Palette = ChartColorPalette.Fire;
+            this.chart1.Series[0].Points.Clear();
+            this.chart1.Palette = ChartColorPalette.Berry;
+            this.chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             for (int i = 0; i < ranges.Length; i++)
             {
                 if (ranges[i] != null) {
-                    Series series = this.chart1.Series.Add(ranges[i]);
-                    series.Points.Add((double)counts[i]);
+                    this.chart1.Series[0].Points.AddXY(ranges[i], counts[i]);
                 }
             }
         }
@@ -206,19 +207,19 @@ namespace LogoDetectionFANET45
                 } while (limit > 0);
             }
             draw:
-            this.chart1.Series.Clear();
-            this.chart1.Palette = ChartColorPalette.Fire;
+            this.chart1.Series[0].Points.Clear();
+            this.chart1.Palette = ChartColorPalette.Berry;
+            this.chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             for (int i = 0; i < ranges.Length; i++)
             {
                 if (ranges[i] != null) {
-                    Series series = this.chart1.Series.Add(ranges[i]);
-                    series.Points.Add((double)counts[i]);
+                    this.chart1.Series[0].Points.AddXY(ranges[i], counts[i]);
                 }
             }
         }
 
         private void groupByDays(List<KeyValuePair<DateTime, int>> _stats)
-        {
+        { 
             DateTime[] days = new DateTime[7];
             int[] counts = new int[7];
             int index = _stats.Count - 1;
@@ -227,13 +228,29 @@ namespace LogoDetectionFANET45
                 counts[i] = _stats[index].Value;
                 index--;
             }
-            this.chart1.Series.Clear();
-            this.chart1.Palette = ChartColorPalette.Fire;
+            this.chart1.Series[0].Points.Clear();
+            this.chart1.Palette = ChartColorPalette.Berry;
+            this.chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             for (int i = 0; i < days.Length; i++) {
                 if (days[i] != null) {
-                    Series series = this.chart1.Series.Add(days[i].ToString());
-                    series.Points.Add((double)counts[i]);
+                    this.chart1.Series[0].Points.AddXY(days[i], counts[i]);
                 }
+            }
+        }
+
+        private void lineChartTest() {
+            Dictionary<string, int> tags = new Dictionary<string, int>() { 
+                { "test", 10 },
+                { "my", 3 },
+                { "code", 8 }
+            };
+
+            this.chart1.Series[0].Points.Clear();
+            this.chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            foreach (string tagname in tags.Keys)
+            {
+                this.chart1.Series[0].Points.AddXY(tagname, tags[tagname]);
+                //chart1.Series[0].IsValueShownAsLabel = true;
             }
         }
 
@@ -266,5 +283,6 @@ namespace LogoDetectionFANET45
         {
             fetch_GeoDataAll();
         }
+
     }
 }
