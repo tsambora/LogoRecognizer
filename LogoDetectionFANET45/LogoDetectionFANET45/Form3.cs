@@ -127,6 +127,71 @@ namespace LogoDetectionFANET45
             mapBox1.Refresh();
         }
 
+        private void fetch_GeoDataRange(DateTime from, DateTime to) {
+            List<String> res = new List<String>();
+            for (int i = 0; i < db.dates.Count; i++)
+            {
+                if (isDateBetween(db.dates[i], from, to))
+                {
+                    res.Add(db.location[i]);
+                }
+            }
+
+            int[] colorMap = new int[95];
+            foreach (String s in res)
+            {
+                for (int i = 0; i < 95; i++)
+                {
+                    if (s == i.ToString())
+                    {
+                        colorMap[i]++;
+                    }
+                }
+            }
+
+            Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
+            VectorStyle detectedArea = new VectorStyle();
+            VectorStyle def = new VectorStyle();
+            def.Fill = new SolidBrush(Color.FromArgb(255, 255, 255));
+            for (int i = 0; i < colorMap.Length; i++)
+            {
+                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
+                if (colorMap[i] > 0)
+                {
+                    styles.Add(i.ToString(), detectedArea);
+                }
+                else
+                    styles.Add(i.ToString(), def);
+            }
+
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
+            mapBox1.Map.Layers.Add(vlay);
+            mapBox1.Map.ZoomToExtents();
+            mapBox1.Refresh();
+        }
+
+        private bool isDateBetween(DateTime d, DateTime fromDate, DateTime toDate)
+        {
+            if (fromDate.CompareTo(toDate) >= 1)
+            {
+                Console.WriteLine("From Date shouldn't be grater than To Date");
+            }
+            int cd_fd = d.CompareTo(fromDate);
+            int cd_td = d.CompareTo(toDate);
+
+            if (cd_fd == 0 || cd_td == 0)
+            {
+                return true;
+            }
+
+            if (cd_fd >= 1 && cd_td <= -1)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private void fetch_ChartDate(string range) {
             switch (range){
                 case "Harian":
@@ -238,6 +303,29 @@ namespace LogoDetectionFANET45
             }
         }
 
+        private void groupByRange(List<KeyValuePair<DateTime, int>> _stats, DateTime from, DateTime to) {
+            List<KeyValuePair<DateTime, int>> res = new List<KeyValuePair<DateTime, int>>();
+
+            for (int i = 0; i < _stats.Count; i++)
+            {
+                if (isDateBetween(_stats[i].Key, from, to))
+                {
+                    res.Add(_stats[i]);
+                }
+            }
+
+            this.chart1.Series[0].Points.Clear();
+            this.chart1.Palette = ChartColorPalette.Berry;
+            this.chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            for (int i = 0; i < res.Count; i++)
+            {
+                if (res[i].Key != null)
+                {
+                    this.chart1.Series[0].Points.AddXY(res[i].Key, res[i].Value);
+                }
+            }
+        }
+
         private void lineChartTest() {
             Dictionary<string, int> tags = new Dictionary<string, int>() { 
                 { "test", 10 },
@@ -256,7 +344,7 @@ namespace LogoDetectionFANET45
 
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
-            fetch_GeoData(dateTimePicker1.Value);
+            //fetch_GeoData(dateTimePicker1.Value);
         }
 
         private void Form3_Load(object sender, EventArgs e)
@@ -282,6 +370,26 @@ namespace LogoDetectionFANET45
         private void button1_Click(object sender, EventArgs e)
         {
             fetch_GeoDataAll();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            fetch_GeoData(dateTimePicker1.Value);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            fetch_GeoDataRange(dateTimePicker2.Value, dateTimePicker3.Value);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            groupByRange(db.dummyChartStats, dateTimePicker5.Value, dateTimePicker4.Value);
         }
 
     }

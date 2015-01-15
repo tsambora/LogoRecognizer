@@ -155,7 +155,33 @@ namespace LogoDetectionFANET45
                 new KeyValuePair<DateTime,int>(new DateTime(2014,11,4), 10),
                 new KeyValuePair<DateTime,int>(new DateTime(2014,11,3), 9),
                 new KeyValuePair<DateTime,int>(new DateTime(2014,11,2), 17),
-                new KeyValuePair<DateTime,int>(new DateTime(2014,11,1), 12)
+                new KeyValuePair<DateTime,int>(new DateTime(2014,11,1), 12),
+
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,25), 72),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,24), 22),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,23), 31),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,22), 19),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,21), 22),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,20), 52),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,19), 81),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,18), 95),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,17), 42),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,16), 32),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,15), 21),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,14), 12),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,13), 23),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,12), 22),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,11), 8),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,10), 5),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,9), 30),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,8), 51),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,7), 33),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,6), 66),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,5), 2),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,4), 10),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,3), 9),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,2), 17),
+                new KeyValuePair<DateTime,int>(new DateTime(2014,10,1), 12)
             };
     }
 }
