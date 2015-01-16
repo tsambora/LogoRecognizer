@@ -68,14 +68,15 @@ namespace LogoDetectionFANET45
             }
 
             Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
-            VectorStyle detectedArea = new VectorStyle();
             VectorStyle def = new VectorStyle();
-            def.Fill = new SolidBrush(Color.FromArgb(255,255,255));
+            def.Fill = new SolidBrush(Color.FromArgb(255, 255, 255));
+            int maxCol = colorMap.Max() == 0 ? 1 : colorMap.Max();
             for(int i = 0; i < colorMap.Length; i++){
-                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
-                if (colorMap[i] > 0){
+                int col = colorMap[i] == 0 ? 1 : colorMap[i];
+                SharpMap.Styles.VectorStyle detectedArea = new SharpMap.Styles.VectorStyle();
+                detectedArea.Fill = new SolidBrush(Color.FromArgb((int)(255 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol))));
+                if (colorMap[i] > 0)
                     styles.Add(i.ToString(), detectedArea);
-                }
                 else 
                     styles.Add(i.ToString(), def);
             }
@@ -106,16 +107,16 @@ namespace LogoDetectionFANET45
             }
 
             Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
-            VectorStyle detectedArea = new VectorStyle();
             VectorStyle def = new VectorStyle();
             def.Fill = new SolidBrush(Color.FromArgb(255, 255, 255));
+            int maxCol = colorMap.Max();
             for (int i = 0; i < colorMap.Length; i++)
             {
-                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
+                int col = colorMap[i] == 0 ? 1 : colorMap[i];
+                SharpMap.Styles.VectorStyle detectedArea = new SharpMap.Styles.VectorStyle();
+                detectedArea.Fill = new SolidBrush(Color.FromArgb((int)(255 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol))));
                 if (colorMap[i] > 0)
-                {
                     styles.Add(i.ToString(), detectedArea);
-                }
                 else
                     styles.Add(i.ToString(), def);
             }
@@ -150,16 +151,16 @@ namespace LogoDetectionFANET45
             }
 
             Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
-            VectorStyle detectedArea = new VectorStyle();
             VectorStyle def = new VectorStyle();
             def.Fill = new SolidBrush(Color.FromArgb(255, 255, 255));
+            int maxCol = colorMap.Max() == 0 ? 1 : colorMap.Max();
             for (int i = 0; i < colorMap.Length; i++)
             {
-                detectedArea.Fill = new SolidBrush(Color.FromArgb(255, colorMap[i] * 30, colorMap[i] * 30));
+                int col = colorMap[i] == 0 ? 1 : colorMap[i];
+                SharpMap.Styles.VectorStyle detectedArea = new SharpMap.Styles.VectorStyle();
+                detectedArea.Fill = new SolidBrush(Color.FromArgb((int)(255 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol)), (int)(0 * decimal.Divide(col, maxCol))));
                 if (colorMap[i] > 0)
-                {
                     styles.Add(i.ToString(), detectedArea);
-                }
                 else
                     styles.Add(i.ToString(), def);
             }
