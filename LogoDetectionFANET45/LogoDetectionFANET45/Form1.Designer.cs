@@ -273,7 +273,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.imageBox1);
             this.Name = "Form1";
-            this.Text = "Logo Detection";
+            this.Text = "Pendeteksian Logo Komersial";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);

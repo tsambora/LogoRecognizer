@@ -1787,7 +1787,10 @@ namespace LogoDetectionFANET45
         {
             ObservedList.Clear();
             foreach (string dir in db.images) {
-                ObservedList.Add(new Image<Gray, byte>(dir));
+
+                Bitmap bmpImage = new Bitmap(Image.FromStream(System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream(dir)));
+                Emgu.CV.Image<Gray, byte> imageOut = new Emgu.CV.Image<Gray, byte>(bmpImage);
+                ObservedList.Add(imageOut);
             }
             List<ImageBox> boxes =
                 new List<ImageBox> { 
@@ -1800,10 +1803,46 @@ namespace LogoDetectionFANET45
                     imageBox14,
                     imageBox13,
                     imageBox12,
-                    imageBox11
+                    imageBox11,
+                    imageBox20,
+                    imageBox19,
+                    imageBox18,
+                    imageBox17,
+                    imageBox16,
+                    imageBox25,
+                    imageBox24,
+                    imageBox23,
+                    imageBox22,
+                    imageBox21,
+                    imageBox30,
+                    imageBox29,
+                    imageBox28,
+                    imageBox27,
+                    imageBox26,
+                    imageBox35,
+                    imageBox34,
+                    imageBox33,
+                    imageBox32,
+                    imageBox31,
+                    imageBox40,
+                    imageBox39,
+                    imageBox38,
+                    imageBox37,
+                    imageBox36,
+                    imageBox45,
+                    imageBox44,
+                    imageBox43,
+                    imageBox42,
+                    imageBox41,
+                    imageBox50,
+                    imageBox49,
+                    imageBox48,
+                    imageBox47,
+                    imageBox46
                 };
             for (int i = 0; i < db.images.Count; i++) {
-                boxes[i].Image = new Image<Rgba, Byte>(db.images[i]);
+                Bitmap bmpImage = new Bitmap(Image.FromStream(System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream(db.images[i])));
+                boxes[i].Image = new Emgu.CV.Image<Rgba, Byte>(bmpImage);
                 boxes[i].SizeMode = PictureBoxSizeMode.StretchImage;
             }
         }

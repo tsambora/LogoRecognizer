@@ -46,7 +46,15 @@ namespace LogoDetectionFANET45
             fetch_GeoData(dateTimePicker1.Value);
             fetch_ChartDate("Harian");
             comboBox1.Text = "Harian";
-            //lineChartTest();
+            Bitmap chosenLogoBmp = new Bitmap(Image.FromStream(System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream("LogoDetectionFANET45.Resources.91.jpg")));
+            Emgu.CV.Image<Bgr, Byte> chosenLogoEmgu = new Emgu.CV.Image<Bgr, Byte>(chosenLogoBmp);
+            imageBox1.Image = chosenLogoEmgu;
+            imageBox1.Size = new Size(106, 106);
+            imageBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+
+            imageBox2.Image = chosenLogoEmgu;
+            imageBox2.Size = new Size(106, 106);
+            imageBox2.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         private void fetch_GeoData(DateTime date) {
@@ -81,7 +89,7 @@ namespace LogoDetectionFANET45
                     styles.Add(i.ToString(), def);
             }
 
-            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"..\..\Resources\map.shp", true);
             vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
             mapBox1.Map.Layers.Add(vlay);
             mapBox1.Map.ZoomToExtents();
@@ -121,7 +129,7 @@ namespace LogoDetectionFANET45
                     styles.Add(i.ToString(), def);
             }
 
-            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"..\..\Resources\map.shp", true);
             vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
             mapBox1.Map.Layers.Add(vlay);
             mapBox1.Map.ZoomToExtents();
@@ -165,7 +173,7 @@ namespace LogoDetectionFANET45
                     styles.Add(i.ToString(), def);
             }
 
-            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\Users\Onit\Desktop\map.shp", true);
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"..\..\Resources\map.shp", true);
             vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("kode", styles, def);
             mapBox1.Map.Layers.Add(vlay);
             mapBox1.Map.ZoomToExtents();
@@ -391,6 +399,21 @@ namespace LogoDetectionFANET45
         private void button4_Click(object sender, EventArgs e)
         {
             groupByRange(db.dummyChartStats, dateTimePicker5.Value, dateTimePicker4.Value);
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
         }
 
     }
