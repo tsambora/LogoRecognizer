@@ -1,4 +1,1 @@
-logo-detector
-=============
-
-Repository for the development of Tino E. K. Sambora's final project: A Simple Logo Detector for Social Media Images
+Repository of Tino Sambora's final project: A Logo Recognizer for Social Media Images
